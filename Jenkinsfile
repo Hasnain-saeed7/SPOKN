@@ -4,31 +4,30 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                echo 'Cloning repository...'
+                echo 'Repository cloned!'
                 checkout scm
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t my-app:latest .'
+                echo 'Building Docker images...'
+                sh 'docker compose build'
             }
         }
 
-        stage('Run Container') {
+        stage('Deploy') {
             steps {
-                echo 'Running container...'
-                sh 'docker stop my-app || true'
-                sh 'docker rm my-app || true'
-                sh 'docker run -d --name my-app -p 3000:3000 my-app:latest'
+                echo 'Deploying containers...'
+                sh 'docker compose down || true'
+                sh 'docker compose up -d'
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline succeeded!'
         }
         failure {
             echo 'Pipeline failed!'
