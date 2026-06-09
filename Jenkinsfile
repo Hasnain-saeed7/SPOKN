@@ -2,13 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
-            steps {
-                echo 'Repository cloned!'
-                checkout scm
-            }
-        }
-
         stage('Build') {
             steps {
                 echo 'Building Docker images...'
