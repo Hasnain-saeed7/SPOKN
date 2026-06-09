@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 export async function POST(request: NextRequest) {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY }); // runs only when API is called
   try {
     const formData = await request.formData();
     const file = formData.get('audio') as File;
@@ -19,24 +18,19 @@ export async function POST(request: NextRequest) {
       australian: 'Use Australian English spelling and phrasing where natural.',
     }[accent] || 'Use neutral English phrasing.';
 
-    // 1. Speech-to-Text using Whisper
     const transcription = await groq.audio.transcriptions.create({
       file: file,
       model: 'whisper-large-v3',
     });
     const userText = transcription.text;
 
-    // 2. Determine reply using Llama 3
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { 
           role: 'system', 
           content: `You are a friendly, encouraging English speaking practice partner. Keep your answers brief (1-3 sentences max), conversational, and natural. If the user makes a major grammar mistake, gently model the correct grammar in your response. ${accentGuidance}` 
         },
-        { 
-          role: 'user', 
-          content: userText 
-        }
+        { role: 'user', content: userText }
       ],
       model: 'llama-3.3-70b-versatile',
       max_tokens: 150,
@@ -45,10 +39,10 @@ export async function POST(request: NextRequest) {
     
     const aiText = chatCompletion.choices[0]?.message?.content || '';
 
-    // Return both the transcription and the AI's response
     return NextResponse.json({ userText, aiText });
   } catch (error: any) {
     console.error('AI Route Error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
-}
+} 
+

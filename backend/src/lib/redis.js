@@ -2,13 +2,13 @@ const redis = require('redis');
 
 const client = redis.createClient({
   socket: {
-    reconnectStrategy: false // Stop retrying indefinitely if Redis is offline
+    host: process.env.REDIS_HOST || 'localhost',
+    port: 6379,
+    reconnectStrategy: false
   }
 });
 
-client.on('error', () => {
-  // Ignored loosely here to prevent ECONNREFUSED terminal spam
-});
+client.on('error', () => {});
 
 async function connectRedis() {
   if (!client.isOpen) {
@@ -16,7 +16,7 @@ async function connectRedis() {
       await client.connect();
       console.log('Connected to Redis');
     } catch (error) {
-      console.error('Failed to connect to Redis. Make sure Docker Desktop and your Redis container are running.', error.message);
+      console.error('Failed to connect to Redis.', error.message);
     }
   }
   return client;
