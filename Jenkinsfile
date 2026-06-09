@@ -11,9 +11,15 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying containers...'
-                sh 'docker-compose down || true'
-                sh 'docker-compose up -d'
+                withCredentials([
+                    file(credentialsId: 'backend-env', variable: 'BACKEND_ENV'),
+                    file(credentialsId: 'frontend-env', variable: 'FRONTEND_ENV')
+                ]) {
+                    sh 'cp $BACKEND_ENV backend/.env'
+                    sh 'cp $FRONTEND_ENV frontend/.env'
+                    sh 'docker-compose down || true'
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
