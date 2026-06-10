@@ -1,11 +1,31 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_USERNAME = '12809'
+    }
+
     stages {
         stage('Build') {
             steps {
                 echo 'Building Docker images...'
                 sh 'docker-compose build'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker tag spokn-backend:latest $DOCKER_USER/spokn-backend:latest'
+                    sh 'docker tag spokn-frontend:latest $DOCKER_USER/spokn-frontend:latest'
+                    sh 'docker push $DOCKER_USER/spokn-backend:latest'
+                    sh 'docker push $DOCKER_USER/spokn-frontend:latest'
+                }
             }
         }
 
