@@ -551,7 +551,7 @@ export default function PracticePage() {
          onClick={handleEndSession}
          className="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-full text-sm font-medium transition-colors flex items-center gap-2"
        >
-         <span>✕</span> End Call
+         <span>✕</span> Disconnect
        </button>
      </div>
 
