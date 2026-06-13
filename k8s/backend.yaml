@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spokn-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spokn-backend
+  template:
+    metadata:
+      labels:
+        app: spokn-backend
+    spec:
+      containers:
+      - name: spokn-backend
+        image: 12809/spokn-backend:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PORT
+          value: "4000"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: CLIENT_ORIGIN
+          value: "http://172.27.233.154:30791"
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: GROQ_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spokn-backend-svc
+spec:
+  selector:
+    app: spokn-backend
+  ports:
+  - port: 4000
+    targetPort: 4000
+  type: NodePort
