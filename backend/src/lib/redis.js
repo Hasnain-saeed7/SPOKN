@@ -24,4 +24,5 @@ async function connectRedis() {
 
 connectRedis();
 
-module.exports = client;
+module.exports = client;  
+
