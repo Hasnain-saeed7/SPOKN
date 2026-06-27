@@ -6,10 +6,11 @@ pipeline {
     }
 
     stages {
+
         stage('Build') {
             steps {
                 echo 'Building Docker images...'
-                sh 'docker-compose build'
+                sh 'docker compose build --no-cache'
             }
         }
 
@@ -20,11 +21,13 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker tag spokn-backend:latest $DOCKER_USER/spokn-backend:latest'
-                    sh 'docker tag spokn-frontend:latest $DOCKER_USER/spokn-frontend:latest'
-                    sh 'docker push $DOCKER_USER/spokn-backend:latest'
-                    sh 'docker push $DOCKER_USER/spokn-frontend:latest'
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker tag spokn-backend:latest $DOCKER_USER/spokn-backend:latest
+                        docker tag spokn-frontend:latest $DOCKER_USER/spokn-frontend:latest
+                        docker push $DOCKER_USER/spokn-backend:latest
+                        docker push $DOCKER_USER/spokn-frontend:latest
+                    '''
                 }
             }
         }
@@ -35,10 +38,12 @@ pipeline {
                     file(credentialsId: 'backend-env', variable: 'BACKEND_ENV'),
                     file(credentialsId: 'frontend-env', variable: 'FRONTEND_ENV')
                 ]) {
-                    sh 'cp $BACKEND_ENV backend/.env'
-                    sh 'cp $FRONTEND_ENV frontend/.env'
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d'
+                    sh '''
+                        cp $BACKEND_ENV backend/.env
+                        cp $FRONTEND_ENV frontend/.env
+                        docker compose down || true
+                        docker compose up -d
+                    '''
                 }
             }
         }
