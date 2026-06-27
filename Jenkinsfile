@@ -10,7 +10,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Docker images...'
-                sh 'docker compose build'
+                sh 'docker-compose build'
             }
         }
 
@@ -41,8 +41,8 @@ pipeline {
                     sh '''
                         cp $BACKEND_ENV backend/.env
                         cp $FRONTEND_ENV frontend/.env
-                        docker compose down || true
-                        docker compose up -d
+                        docker-compose down || true
+                        docker-compose up -d  
                     '''
                 }
             }
